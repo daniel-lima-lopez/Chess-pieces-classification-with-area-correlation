@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
+from sklearn.neighbors import NearestNeighbors
+#from sklearn.neighbors import NearestNeighbors
 
 class Classifier:
     def __init__(self):
@@ -10,53 +12,17 @@ class Classifier:
 
         #----------- FICHAS -----------
         self.datos = []
-        self.tags = []
-        
-        # piezas negras
-        tn = self.boxes[0]
-        self.datos.append(self.areas_3x3(tn)) # se obtiene el vector de areas
-        self.tags.append('B Rook') # se asigna su respectiva etiqueta
-        cn = self.boxes[1]
-        self.datos.append(self.areas_3x3(cn))
-        self.tags.append('B Knight')
-        an = self.boxes[2]
-        self.datos.append(self.areas_3x3(an))
-        self.tags.append('B Bishop')
-        qn = self.boxes[3]
-        self.datos.append(self.areas_3x3(qn))
-        self.tags.append('B Queen')
-        kn = self.boxes[4]
-        self.datos.append(self.areas_3x3(kn))
-        self.tags.append('B King')
-        pn = self.boxes[8]
-        self.datos.append(self.areas_3x3(pn))
-        self.tags.append('B Pawn')
-
-        # piezas blancas
-        tb = self.boxes[56]
-        self.datos.append(self.areas_3x3(tb))
-        self.tags.append('W Rook')
-        cb = self.boxes[57]
-        self.datos.append(self.areas_3x3(cb))
-        self.tags.append('W Knight')
-        ab = self.boxes[58]
-        self.datos.append(self.areas_3x3(ab))
-        self.tags.append('W Bishop')
-        qb = self.boxes[59]
-        self.datos.append(self.areas_3x3(qb))
-        self.tags.append('W Queen')
-        kb = self.boxes[60]
-        self.datos.append(self.areas_3x3(kb))
-        self.tags.append('W King')
-        pb = self.boxes[48]
-        self.datos.append(self.areas_3x3(pb))
-        self.tags.append('W Pawn')
-
-        # vacio
+        self.tags = ['B Rook', 'B Knight', 'B Bishop', 'B Queen', 'B King', 'B Pawn',
+                     'W Rook', 'W Knight', 'W Bishop', 'W Queen', 'W King', 'W Pawn', '-']
+        for i in [0,1,2,3,4,8,56,57,58,59,60,48]:
+            self.datos.append(self.areas_3x3(self.boxes[i]))
         self.datos.append(np.array([0,0,0,0,0,0,0,0,0]))
-        self.tags.append('-')
-        
         self.datos = np.array(self.datos)
+        self.y = np.arange(0,13)
+
+        #----------- KNN ---------------
+        self.kNN = NearestNeighbors(n_neighbors=1)
+        self.kNN.fit(self.datos, self.y)        
 
     def binarizacion(self, matrix):
         gray = cv.cvtColor(matrix, cv.COLOR_BGR2GRAY) # escala de grises
@@ -89,9 +55,6 @@ class Classifier:
                         aux_area += 1 # incrementa el conteo de area
             aux.append(aux_area)
         return np.array(aux)
-    
-    def euclideanD(self, x1, x2): # metrica euclideana
-        return np.sqrt(np.sum((x1-x2)**2))    
 
     def predict(self, path):
         board = cv.imread(path) # lectura de la imagen
@@ -104,14 +67,11 @@ class Classifier:
             areas.append(self.areas_3x3(box))
         areas = np.array(areas)
 
-        # buscamos el vecinos mas cercanos de cada box (kNN)
-        plot_tags = []
-        for i in areas:
-            distances = np.array([self.euclideanD(i, di) for di in self.datos])
-            ni = np.argsort(distances)[0] # indice del mas cercanos
-            plot_tags.append(self.tags[ni]) # etiqueta de la prediccion
+        # predicciones con kNN
+        preds = self.kNN.kneighbors(areas, return_distance=False)
+        tags = [self.tags[int(i)] for i in preds]
 
-        self.plot_grid(boxes, 8, 8, plot_tags) # graficamos las predicciones de cada pieza
+        self.plot_grid(boxes, 8, 8, tags) # graficamos las predicciones de cada pieza
 
     def plot_grid(self, imgs, rows, cols, tags = []):
         fig, axes = plt.subplots(rows, cols)
