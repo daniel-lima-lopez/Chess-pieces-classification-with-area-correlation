@@ -130,5 +130,5 @@ class Classifier:
 if __name__ == '__main__':
     clasificador = Classifier()
 
-    print(clasificador.datos)
-    clasificador.predict('imgs/test2.jpeg')
+    clasificador = Classifier()
+    clasificador.predict('test/test6.jpeg')
