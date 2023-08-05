@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 from sklearn.neighbors import NearestNeighbors
-#from sklearn.neighbors import NearestNeighbors
 
 class Classifier:
     def __init__(self):

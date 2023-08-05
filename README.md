@@ -1,21 +1,43 @@
-# Clasificacion de piezas de ajedres con correlacion de area
-En este repositorio se presenta un metodo sencillo para clasificar piezas de ajedrez en un tablero. A diferencia de los enfoques tradicionales basados en aprendizaje profundo, se aborda el problema con correlacion de area, lo cual nos permite implementar un metodo simple e intuitivo que se demepena bien bajo ambientes controlados.
+# Chess pieces classification with area correlation
+[Versión en español](README_ES.md)
 
-## Descripcion del metodo
-La clasificacion de las piezas se realiza con la informacion del area de cada pieza. Para reunir dicha informacion se trabaja con tableros de la pagina [Chess](www.chess.com):
+In this repository, is presented a simple method to classify chess pieces on a board. Unlike traditional deep learning-based approaches, the problem is approached using area correlation and k-NN classifier, which allows us to implement a straightforward and intuitive method that performs well in controlled environments.
+
+## Method description
+The classification is carried out using the information of each piece's area. To gather such information, we work with boards from the page. [Chess](https://www.chess.com/es):
 
 ![alt](imgs/board.jpeg)
 
-Para construir el conjunto de datos con el trabajar el clasificador ***kNN***, se binariza la imagen del tablero y se divide la informacion de cada casilla:
+To build the dataset to work with _k-NN_ classifier, the board image is binarized, and the information of each square is divided:
 
 ![alt](imgs/Tablero.png)
 
-Posteriormente, para cada pieza, se divide la imagen en ventanas y se cuenta el numero de pixeles negros en cada una:
+Subsequently, for each piece, the image is divided into windows, and the number of black pixels in each window is counted:
 
 ![alt](imgs/KingArea.png)
 
-De esta manera, se obtienen un vectores de nueve entradas que representa la informacion de cada pieza.
+Consequently, we obtain nine-entry vectors that represent the information of each piece.
 
-En cuanto a las predicciones, cada tablero se procesa con el metodo descrito anteriormente, hasta calcular el area de cada casilla. Finalmente, se utiliza ***kNN*** para predecir la pieza mas similar a cada casilla y asignar una etiqueta:
+Each board is processed using the method described above to calculate the area of each square, finally, *k-NN* is used to predict the most similar piece for each square and assign a label:
 
 ![alt](imgs/Prediccion.png)
+
+## Instalation
+Clone or download this repository:
+```bash
+git clone git@github.com:daniel-lima-lopez/Chess-pieces-classification-with-area-correlation.git
+```
+
+## Example
+To instantiate the classifier, it is necessary to import the class:
+```python
+from ChessClassifier import Classifier
+
+classifier = Classifier()
+```
+
+Subsequently, to make a prediction, you must include the location of the board to be classified.:
+```python
+classifier.predict('path')
+```
+Example [boards](test/) are included to test the classifier.
